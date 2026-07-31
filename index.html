@@ -33,7 +33,7 @@
             try {
                 // RENDER URL REPLACEMENT STEP
                 // Replace 'YOUR-RENDER-APP-URL' with the actual link provided by Render after Step 3.
-                const res = await fetch('YOUR-RENDER-APP-URL/api/teslas');
+                const res = await fetch('https://dc-tesla-fsd-finder.onrender.com/api/teslas');
                 const data = await res.json();
                 loader.style.display = 'none';
                 if(data.cars.length === 0) { loader.innerText = 'No matching inventory found right now.'; return; }
