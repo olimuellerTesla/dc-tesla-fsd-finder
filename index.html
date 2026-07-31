@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DC Used Tesla FSD Finder</title>
+    <style>
+        :root { --bg: #f4f5f7; --card: #ffffff; --text: #171a20; --blue: #3e6ae1; }
+        body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); color: var(--text); padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; padding-bottom: 20px; margin-bottom: 30px; }
+        .btn { background: var(--blue); color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: 500; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+        .card { background: var(--card); border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); padding: 20px; display: flex; flex-direction: column; justify-content: space-between; }
+        .price { font-size: 22px; font-weight: 700; color: #10b981; margin: 10px 0; }
+        .buy-link { text-align: center; background: #171a20; color: white; text-decoration: none; padding: 8px; border-radius: 4px; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Used Teslas with FSD (DC Region)</h1>
+            <button class="btn" onclick="fetchInventory()">Refresh</button>
+        </header>
+        <div id="loader" style="text-align:center; font-size:18px;">Loading tracking data...</div>
+        <div id="car-grid" class="grid"></div>
+    </div>
+    <script>
+        async function fetchInventory() {
+            const grid = document.getElementById('car-grid');
+            const loader = document.getElementById('loader');
+            grid.innerHTML = ''; loader.style.display = 'block';
+            try {
+                // RENDER URL REPLACEMENT STEP
+                // Replace 'YOUR-RENDER-APP-URL' with the actual link provided by Render after Step 3.
+                const res = await fetch('YOUR-RENDER-APP-URL/api/teslas');
+                const data = await res.json();
+                loader.style.display = 'none';
+                if(data.cars.length === 0) { loader.innerText = 'No matching inventory found right now.'; return; }
+                data.cars.forEach(car => {
+                    grid.innerHTML += `
+                        <div class="card">
+                            <div>
+                                <h3>${car.year} ${car.model}</h3>
+                                <div class="price">$${car.price.toLocaleString()}</div>
+                                <p style="font-size:14px; color:#4b5563;">
+                                    <strong>Mileage:</strong> ${car.mileage.toLocaleString()} mi<br>
+                                    <strong>Location:</strong> ${car.location || 'DC Hub'}<br>
+                                    <strong>VIN:</strong> ${car.vin}
+                                </p>
+                            </div>
+                            <a href="${car.url}" target="_blank" class="buy-link">View Vehicle</a>
+                        </div>`;
+                });
+            } catch (err) { loader.innerText = 'Backend connection error. Make sure your Render service is active.'; }
+        }
+        fetchInventory();
+    </script>
+</body>
+</html>
