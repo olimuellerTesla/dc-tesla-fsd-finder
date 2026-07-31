@@ -13,7 +13,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-TESLA_API_URL = "https://tesla.com"
+TESLA_API_URL = "https://www.tesla.com/inventory/api/v1/inventory-results"
 
 @app.get("/api/teslas")
 async def get_used_fsd_teslas():
@@ -35,13 +35,20 @@ async def get_used_fsd_teslas():
             "count": 50
         })
     }
+    
+    # Crucial Headers to prevent Tesla from blocking Render
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "Accept": "*/*",
+        "Authority": "www.tesla.com"
+    }
 
     try:
         async with httpx.AsyncClient() as client:
-            response = await client.get(TESLA_API_URL, params=query_params, timeout=10.0)
+            response = await client.get(TESLA_API_URL, params=query_params, headers=headers, timeout=15.0)
             
         if response.status_code != 200:
-            raise HTTPException(status_code=500, detail="Failed to fetch data from Tesla API")
+            raise HTTPException(status_code=500, detail=f"Tesla API returned status {response.status_code}")
             
         data = response.json()
         results = data.get("results", [])
